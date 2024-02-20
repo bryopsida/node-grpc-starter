@@ -9,7 +9,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@96f53100ba2a5449eb71d2e6604bbcd94b9449b5
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
