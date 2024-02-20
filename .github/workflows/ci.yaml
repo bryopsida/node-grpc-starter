@@ -22,7 +22,7 @@ jobs:
         continue-on-error: true
       - run: npm test
   build-image:
-    name: Build
+    name: Build Image
     env:
         REGISTRY: ghcr.io/bryopsida
         IMAGE_NAME: node-grpc-starter
