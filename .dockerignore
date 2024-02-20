@@ -1,0 +1,9 @@
+*
+!package*.json
+!*.js
+!**/*.js
+*.spec.js
+**/*.spec.js
+e2e
+!*.proto
+!Dockerfile

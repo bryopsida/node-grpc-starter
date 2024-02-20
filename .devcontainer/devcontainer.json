@@ -1,0 +1,26 @@
+{
+    "name": "Node.js",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "streetsidesoftware.code-spell-checker",
+          "ms-azuretools.vscode-docker",
+          "plex.vscode-protolint"
+        ],
+        "settings": {
+          "terminal.integrated.profiles.linux": {
+            "zsh": {
+              "path": "/usr/bin/zsh"
+            }
+          },
+          "terminal.integrated.defaultProfile.linux": "zsh"
+        }
+      }
+    },
+    "forwardPorts": [
+      3000
+    ]
+  }
