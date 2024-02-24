@@ -4,6 +4,7 @@ const { HealthImplementation } = require('grpc-health-check')
 const protoLoader = require('@grpc/proto-loader')
 const { resolve, join } = require('path')
 const { unaryEcho, bidirectionalStreamingEcho, serverStreamingEcho, clientStreamingEcho } = require('./services/echo')
+const getCredentials = require('./services/credential')
 
 const logger = require('./services/logger')({
   name: 'server.js'
@@ -51,9 +52,13 @@ function buildServer () {
  * Starts an RPC server that receives requests for the Echo service at the
  * sample server port
  */
-function startServer (server) {
+async function startServer (server) {
+  logger.info('Starting server on %d', listenPort)
+  const credentials = await getCredentials({
+    tlsCertPath: process.env.SERVER_CERT_PATH
+  })
   return new Promise((resolve, reject) => {
-    server.bindAsync(listenPort, grpc.ServerCredentials.createInsecure(), (err, port) => {
+    server.bindAsync(listenPort, credentials, (err, port) => {
       if (err != null) {
         return reject(err)
       }
@@ -65,6 +70,7 @@ function startServer (server) {
 }
 
 function stopServer (server) {
+  logger.info('Stopping server')
   // unbind
   server.unbind(listenPort)
   // drain
@@ -73,6 +79,7 @@ function stopServer (server) {
   return new Promise((resolve, reject) => {
     server.tryShutdown((err) => {
       if (err) {
+        logger.error('Error while shutting down server %j', err)
         return reject(err)
       }
       resolve()
