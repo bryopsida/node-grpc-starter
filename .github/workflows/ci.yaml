@@ -26,6 +26,8 @@ jobs:
     env:
         REGISTRY: ghcr.io/bryopsida
         IMAGE_NAME: node-grpc-starter
+    needs: 
+      - test
     permissions:
         contents: read
         packages: write
