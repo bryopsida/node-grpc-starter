@@ -10,8 +10,6 @@ const logger = require('./services/logger')({
   name: 'server.js'
 })
 
-const listenPort = `0.0.0.0:${process.env.SERVER_PORT ?? 3000}`
-
 grpc.setLogger(logger)
 grpc.setLogVerbosity(grpc.logVerbosity.DEBUG)
 
@@ -52,13 +50,26 @@ function buildServer () {
  * Starts an RPC server that receives requests for the Echo service at the
  * sample server port
  */
-async function startServer (server) {
-  logger.info('Starting server on %d', listenPort)
+async function startServer (server, port) {
+  logger.info('Starting server on %d', port)
+  // it's expected that these are loaded in via dotenv
+  // depending on your security needs, you may want to use
+  // a .env.vault to hold the private keys
   const credentials = await getCredentials({
-    tlsCertPath: process.env.SERVER_CERT_PATH
+    // the the root trust chain, set this to the set of public certs
+    // that can issue client certificates and will be trusted
+    tlsCertPath: process.env.SERVER_CERT_PATH,
+    // if you intend to run plain text and secure the endpoint via other means, or
+    // it can be open, use this to supress the warning message on startup
+    suppressInsecureWarning: process.env.SERVER_SUPRESS_INSECURE_WARNING,
+    // The set of private/public key pairs available to the server
+    keyPairs: process.env.SERVER_KEY_PAIRS != null ? JSON.parse(process.env.SERVER_KEY_PAIRS) : undefined,
+    // check valid hostname for client certificate, this requires proper hostname resolution
+    // if you do not have that, set this to false
+    checkClientCertificate: process.env.SERVER_VALIDATE_CLIENT_CERT
   })
   return new Promise((resolve, reject) => {
-    server.bindAsync(listenPort, credentials, (err, port) => {
+    server.bindAsync(port, credentials, (err, port) => {
       if (err != null) {
         return reject(err)
       }
@@ -69,12 +80,12 @@ async function startServer (server) {
   })
 }
 
-function stopServer (server) {
+function stopServer (server, port) {
   logger.info('Stopping server')
   // unbind
-  server.unbind(listenPort)
+  server.unbind(port)
   // drain
-  server.drain(listenPort, 1000)
+  server.drain(port, 1000)
   // tryShutdown
   return new Promise((resolve, reject) => {
     server.tryShutdown((err) => {
@@ -87,9 +98,9 @@ function stopServer (server) {
   })
 }
 
-function buildAndStart () {
+function buildAndStart (port) {
   const server = buildServer()
-  return startServer(server)
+  return startServer(server, port)
 }
 
 module.exports = {

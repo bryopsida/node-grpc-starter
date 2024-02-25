@@ -12,7 +12,7 @@ describe('server.js', () => {
           cb()
         })
       }
-      await startServer(server)
+      await startServer(server, '0.0.0.0:3000')
     })
   })
   describe('buildServer', () => {

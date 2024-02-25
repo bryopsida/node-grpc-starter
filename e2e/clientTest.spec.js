@@ -22,7 +22,7 @@ describe('e2e', () => {
   let server
   let client
   before(async () => {
-    server = await buildAndStart()
+    server = await buildAndStart('localhost:3000')
     client = new Service('localhost:3000', grpc.credentials.createInsecure())
   })
   after(async () => {
