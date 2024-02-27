@@ -12,7 +12,10 @@ describe('server.js', () => {
           cb()
         })
       }
-      await startServer(server, '0.0.0.0:3000')
+      await startServer({
+        server,
+        port: '0.0.0.0:3000'
+      })
     })
   })
   describe('buildServer', () => {

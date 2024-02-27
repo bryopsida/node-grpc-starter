@@ -10,7 +10,13 @@ const logger = require('./services/logger')({
 const listenPort = `0.0.0.0:${process.env.SERVER_PORT ?? 3000}`
 
 async function main (startFunc) {
-  return await startFunc(listenPort)
+  return await startFunc({
+    port: listenPort,
+    suppressInsecureWarning: process.env.SERVER_SUPRESS_INSECURE_WARNING,
+    caCertPath: process.env.SERVER_CA_CERT_PATH,
+    checkClientCertificate: process.env.SERVER_VALIDATE_CLIENT_CERT,
+    keyPairs: process.env.SERVER_KEY_PAIRS != null ? JSON.parse(process.env.SERVER_KEY_PAIRS) : undefined
+  })
 }
 
 async function cleanup (server) {
