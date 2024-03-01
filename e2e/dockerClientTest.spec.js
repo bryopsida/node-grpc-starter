@@ -1,9 +1,9 @@
 const { describe, before, after } = require('node:test')
 const { join, resolve } = require('node:path')
-const { buildAndStart, stopServer } = require('../server')
 const grpc = require('@grpc/grpc-js')
 const protoLoader = require('@grpc/proto-loader')
 const clientTests = require('./clientTests')
+const { GenericContainer, Wait } = require('testcontainers')
 
 const PROTO_PATH = resolve(join(__dirname, '../', 'server.proto'))
 
@@ -18,17 +18,21 @@ const packageDefinition = protoLoader.loadSync(
   })
 const Service = grpc.loadPackageDefinition(packageDefinition).grpc.examples.echo.Echo
 
-describe('e2e', () => {
+describe('dockerE2E', () => {
   const state = {
-    server: undefined,
+    container: undefined,
     client: undefined
   }
   before(async () => {
-    state.server = await buildAndStart({ port: 'localhost:3000' })
-    state.client = new Service('localhost:3000', grpc.credentials.createInsecure())
+    const tag = 'ghcr.io/bryopsida/node-grpc-starter:ci'
+    const image = await GenericContainer.fromDockerfile('.').build(tag, {
+      deleteOnExit: false
+    })
+    state.container = await image.withExposedPorts(3000).withWaitStrategy(Wait.forLogMessage(/.*Finished starting server.*/)).withLogConsumer(l => l.pipe(process.stdout)).start()
+    state.client = new Service(`localhost:${state.container.getMappedPort(3000)}`, grpc.credentials.createInsecure())
   })
   after(async () => {
-    await stopServer(state.server)
+    await state.container.stop()
   })
   describe('clientTest', () => {
     clientTests(state)

@@ -4,12 +4,11 @@ const { HealthImplementation } = require('grpc-health-check')
 const protoLoader = require('@grpc/proto-loader')
 const { resolve, join } = require('path')
 const { unaryEcho, bidirectionalStreamingEcho, serverStreamingEcho, clientStreamingEcho } = require('./services/echo')
+const getCredentials = require('./services/credential')
 
 const logger = require('./services/logger')({
   name: 'server.js'
 })
-
-const listenPort = `0.0.0.0:${process.env.SERVER_PORT ?? 3000}`
 
 grpc.setLogger(logger)
 grpc.setLogVerbosity(grpc.logVerbosity.DEBUG)
@@ -51,28 +50,37 @@ function buildServer () {
  * Starts an RPC server that receives requests for the Echo service at the
  * sample server port
  */
-function startServer (server) {
+async function startServer (props) {
+  if (!props.port) throw new Error('startServer requires props.port')
+  if (!props.server) throw new Error('startServer requires props.server')
+  logger.info('Starting server on %d', props.port)
+  // it's expected that these are loaded in via dotenv
+  // depending on your security needs, you may want to use
+  // a .env.vault to hold the private keys
+  const credentials = await getCredentials(props)
   return new Promise((resolve, reject) => {
-    server.bindAsync(listenPort, grpc.ServerCredentials.createInsecure(), (err, port) => {
+    props.server.bindAsync(props.port, credentials, (err, port) => {
       if (err != null) {
         return reject(err)
       }
       healthImpl.setStatus('serviceBar', 'SERVING')
       logger.info('gRPC listening on %d', port)
-      resolve(server)
+      resolve(props.server)
     })
   })
 }
 
-function stopServer (server) {
+function stopServer (server, port) {
+  logger.info('Stopping server')
   // unbind
-  server.unbind(listenPort)
+  server.unbind(port)
   // drain
-  server.drain(listenPort, 1000)
+  server.drain(port, 1000)
   // tryShutdown
   return new Promise((resolve, reject) => {
     server.tryShutdown((err) => {
       if (err) {
+        logger.error('Error while shutting down server %j', err)
         return reject(err)
       }
       resolve()
@@ -80,9 +88,15 @@ function stopServer (server) {
   })
 }
 
-function buildAndStart () {
+function buildAndStart (props) {
+  if (!props.port) throw new Error('props.port is required')
   const server = buildServer()
-  return startServer(server)
+  return startServer({
+    ...props,
+    ...{
+      server
+    }
+  })
 }
 
 module.exports = {
