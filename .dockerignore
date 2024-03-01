@@ -1,9 +1,8 @@
 *
-!package*.json
+!services
+!services/*.js
 !*.js
-!**/*.js
+!package*.json
+!*.proto
 *.spec.js
 **/*.spec.js
-e2e
-!*.proto
-!Dockerfile
