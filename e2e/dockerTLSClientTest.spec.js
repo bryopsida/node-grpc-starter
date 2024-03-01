@@ -34,7 +34,6 @@ describe('dockerTLSE2E', () => {
     // setup pki for test
     state.tmpDir = await mkdtemp(resolve(join(tmpdir(), 'certE2ETest')))
     await bootstrapPKI(state.tmpDir)
-    const port = 'localhost:3001'
     const caCert = await readFile(resolve(join(state.tmpDir, 'ca.crt')), { encoding: 'utf-8' })
     const serverCert = await readFile(resolve(join(state.tmpDir, 'server.crt')), { encoding: 'utf-8' })
     const serverKey = await readFile(resolve(join(state.tmpDir, 'server.key')), { encoding: 'utf-8' })
