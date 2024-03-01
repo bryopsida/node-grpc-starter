@@ -26,6 +26,10 @@ function getCredentials (props) {
       })
     }
   }
+  if (props.checkClientCertificate != null && typeof props.checkClientCertificate === 'string') {
+    const normVal = props.checkClientCertificate.toLowerCase()
+    props.checkClientCertificate = normVal === 'true'
+  }
   return ServerCredentials.createSsl(certBuffer, keyPairs, props.checkClientCertificate)
 }
 
