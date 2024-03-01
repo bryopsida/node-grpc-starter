@@ -11,7 +11,6 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN rm Dockerfile
 RUN npm run build --if-present
 
 FROM build-base AS libraries
