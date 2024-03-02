@@ -20,7 +20,8 @@ RUN npm ci --omit-dev
 
 FROM node:lts-alpine
 RUN apk add --update --no-cache dumb-init
-ENV NODE_ENV production
+ENV NODE_ENV=production
+ENV GRPC_TRACE=all
 USER node
 WORKDIR /usr/src/app
 COPY --chown=node:node --from=libraries /usr/src/app/node_modules /usr/src/app/node_modules

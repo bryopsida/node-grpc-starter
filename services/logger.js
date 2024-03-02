@@ -2,7 +2,7 @@
 const Logger = require('pino')
 const logger = Logger({
   name: 'root',
-  level: process.env.LOGGER_LEVEL ?? 'info'
+  level: process.env.LOGGER_LEVEL ?? 'debug'
 })
 
 /**
