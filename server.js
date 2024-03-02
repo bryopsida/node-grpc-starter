@@ -1,3 +1,4 @@
+/** @module server */
 const grpc = require('@grpc/grpc-js')
 const { ReflectionService } = require('@grpc/reflection')
 const { HealthImplementation } = require('grpc-health-check')
@@ -32,6 +33,15 @@ const packageDefinition = protoLoader.loadSync(
   })
 const protoPackage = grpc.loadPackageDefinition(packageDefinition)
 
+/**
+ * @typedef GrpcServer
+ *
+ */
+
+/**
+ *
+ * @returns {GrpcServer}
+ */
 function buildServer () {
   const reflection = new ReflectionService(protoPackage)
   const server = new grpc.Server()
@@ -47,8 +57,9 @@ function buildServer () {
 }
 
 /**
- * Starts an RPC server that receives requests for the Echo service at the
- * sample server port
+ *
+ * @param {*} props
+ * @returns {Promise<GrpcServer>}
  */
 async function startServer (props) {
   if (!props.port) throw new Error('startServer requires props.port')
@@ -70,6 +81,12 @@ async function startServer (props) {
   })
 }
 
+/**
+ * Stop the server functionality on the provided port
+ * @param {*} server
+ * @param {*} port
+ * @returns {Promise<void>} resolves when operation is complete
+ */
 function stopServer (server, port) {
   logger.info('Stopping server')
   // unbind
@@ -88,6 +105,11 @@ function stopServer (server, port) {
   })
 }
 
+/**
+ *
+ * @param {ServerStartOptions} props
+ * @returns {Promise<GrpcServer>}
+ */
 function buildAndStart (props) {
   if (!props.port) throw new Error('props.port is required')
   const server = buildServer()
