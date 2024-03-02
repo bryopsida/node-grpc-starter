@@ -21,6 +21,7 @@ It provides boilerplate to start a gRPC microservice using an example echo servi
 - standard (opinionated code linting)
 - node-forge (boostraps PKI for mTLS E2E testing in CI)
 - testcontainers (verify container builds and runs)
+- jsdoc (create html documentation folder from code comments)
 
 `node --test` is used for testing instead of bringing in a library/framework.
 
@@ -29,6 +30,8 @@ It provides boilerplate to start a gRPC microservice using an example echo servi
 Scripts available in package.json
 
 - `build:image` builds a docker image
+- `build:docs` builds the docs folder using jsdoc
+- `build:context` creates a folder showing the files sent to the docker build context under the context folder
 - `lint` runs standard lint checks
 - `lint:fix` fixes all auto correctable lint failures
 - `start` runs the server
